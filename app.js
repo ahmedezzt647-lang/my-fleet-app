@@ -425,3 +425,21 @@ function saveVehicleFromUI() {
   document.getElementById('newPlate').value = '';
   alert('تم حفظ البيانات بنجاح!');
 }
+// إنشاء واجهة إضافة وتعديل السيارات تلقائياً عند تحميل الصفحة
+if (typeof window !== 'undefined') {
+  window.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput && !document.getElementById('addVehiclePanel')) {
+      const panel = document.createElement('div');
+      panel.id = 'addVehiclePanel';
+      panel.style.cssText = 'background: #1e293b; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #334155;';
+      panel.innerHTML = `
+        <h4 style="margin: 0 0 8px 0; color: #38bdf8; font-size: 14px;">➕ إضافة / تعديل سيارة</h4>
+        <input type="text" id="newDeviceId" placeholder="كود الجهاز (IMEI)" style="width: 100%; padding: 6px; margin-bottom: 6px; background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 4px; box-sizing: border-box;">
+        <input type="text" id="newPlate" placeholder="رقم اللوحة (مثال: أ ب ج 1234)" style="width: 100%; padding: 6px; margin-bottom: 6px; background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 4px; box-sizing: border-box;">
+        <button onclick="saveVehicleFromUI()" style="width: 100%; padding: 8px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">حفظ البيانات</button>
+      `;
+      searchInput.parentNode.insertBefore(panel, searchInput.nextSibling);
+    }
+  });
+}
