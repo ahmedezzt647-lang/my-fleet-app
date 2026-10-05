@@ -31,6 +31,34 @@ app.post('/api/simulate-telemetry', (req, res) => {
     if (!deviceId || lat === undefined || lng === undefined) {
         return res.status(400).json({ error: 'Missing deviceId, lat, or lng' });
     }
+// مسار استقبال بيانات أجهزة Teltonika الحقيقية
+app.post('/api/gps-telemetry', (req, res) => {
+  const data = req.body;
+
+  const deviceId = data.imei || data.deviceId || 'TELTONIKA-01';
+  const plate = data.plate || 'تتبع حي';
+  const lat = parseFloat(data.lat);
+  const lng = parseFloat(data.lng);
+  const speed = parseInt(data.speed) || 0;
+
+  if (!lat || !lng) {
+    return res.status(400).json({ error: 'إحداثيات غير صالحة' });
+  }
+
+  const payload = {
+    deviceId,
+    plate,
+    lat,
+    lng,
+    speed,
+    ignition: data.ignition !== undefined ? data.ignition : true,
+    timestamp: new Date()
+  };
+
+  console.log(`📡 تم استقبال موقع جديد من الجهاز [${deviceId}]:`, payload);
+  res.status(200).send('OK');
+});
+    
 
     if (!fleetState[deviceId]) {
         fleetState[deviceId] = {
