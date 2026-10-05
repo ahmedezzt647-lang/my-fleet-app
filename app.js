@@ -5,6 +5,12 @@ const sqlite3 = require('sqlite3').verbose();
 
 const app = express();
 app.use(express.json());
+app.use(express.static('public'));
+app.use(express.static(__dirname));
+
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html');
+});
 
 // إنشاء وتجهيز قاعدة البيانات SQLite
 const db = new sqlite3.Database('./fleet_telemetry.db', (err) => {
