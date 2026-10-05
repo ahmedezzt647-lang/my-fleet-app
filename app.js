@@ -164,7 +164,7 @@ app.get('/', (req, res) => {
 </head>
 <body>
     <div id="sidebar">
-        <h3 style="margin-top: 5px; color: #f8fafc;">🚛 أسطول السيارات المباشر</h3>
+        <h3 style="margin-top: 5px; color: #f8fafc;">🚛 الهوادج</h3>
         
         <div class="stats-panel">
             <div class="stat-box">
