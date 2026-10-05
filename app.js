@@ -394,38 +394,7 @@ wss.on('connection', (ws) => {
 
 const HTTP_PORT = 3000;
 server.listen(HTTP_PORT, () => {
-    console.log(`🌐 السيرفر يعمل الآن! افتح المتصفح على: http://localhost:${HTTP_PORT}`);
-});
-// دالة حفظ وتحديث بيانات السيارة من الواجهة
-function saveVehicleFromUI() {
-  const deviceId = document.getElementById('newDeviceId').value.trim();
-  const plate = document.getElementById('newPlate').value.trim();
-
-  if (!deviceId || !plate) {
- alert('يرجى كتابة كود الجهاز ورقم اللوحة أولاً');
-    return;
-  }
-
-  if (!vehicles[deviceId]) {
-    vehicles[deviceId] = { lat: 26.3800, lng: 50.1100, speed: 0, maxSpeed: 0, speedingCount: 0 };
-  }
-  vehicles[deviceId].plate = plate;
-  vehicles[deviceId].deviceId = deviceId;
-
-  updateVehicle({
-    deviceId: deviceId,
-    plate: plate,
-    lat: vehicles[deviceId].lat,
-    lng: vehicles[deviceId].lng,
-    speed: vehicles[deviceId].speed,
-    ignition: 1
-  });
-
-  document.getElementById('newDeviceId').value = '';
-  document.getElementById('newPlate').value = '';
-  alert('تم حفظ البيانات بنجاح!');
-}
-// إنشاء واجهة إضافة وتعديل السيارات تلقائياً عند تحميل الصفحة
+   // إنشاء واجهة إضافة وتعديل السيارات تلقائياً عند فتح الصفحة
 if (typeof window !== 'undefined') {
   window.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
@@ -443,3 +412,38 @@ if (typeof window !== 'undefined') {
     }
   });
 }
+
+function saveVehicleFromUI() {
+  const deviceId = document.getElementById('newDeviceId').value.trim();
+  const plate = document.getElementById('newPlate').value.trim();
+
+  if (!deviceId || !plate) {
+    alert('يرجى كتابة كود الجهاز ورقم اللوحة أولاً');
+    return;
+  }
+
+  if (typeof vehicles !== 'undefined') {
+    if (!vehicles[deviceId]) {
+      vehicles[deviceId] = { lat: 26.3800, lng: 50.1100, speed: 0, maxSpeed: 0, speedingCount: 0 };
+    }
+    vehicles[deviceId].plate = plate;
+    vehicles[deviceId].deviceId = deviceId;
+
+    if (typeof updateVehicle === 'function') {
+      updateVehicle({
+        deviceId: deviceId,
+        plate: plate,
+        lat: vehicles[deviceId].lat,
+        lng: vehicles[deviceId].lng,
+        speed: vehicles[deviceId].speed,
+        ignition: 1
+      });
+    }
+  }
+
+  document.getElementById('newDeviceId').value = '';
+  document.getElementById('newPlate').value = '';
+  alert('تم حفظ البيانات بنجاح!');
+}
+    console.log(`🌐 السيرفر يعمل الآن! افتح المتصفح على: http://localhost:${HTTP_PORT}`);
+});
