@@ -172,7 +172,48 @@ app.get('/', (req, res) => {
         </div>
 
         <input type="text" id="searchInput" class="search-box" placeholder="🔍 ابحث برقم اللوحة أو الكود..." oninput="renderSidebar()">
-        
+        <!-- نموذج إضافة وتعديل السيارات + الدالة البرمجية -->
+<div id="addVehiclePanel" style="background: #1e293b; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #334155;">
+  <h4 style="margin: 0 0 8px 0; color: #38bdf8; font-size: 14px;">➕ إضافة / تعديل سيارة</h4>
+  <input type="text" id="newDeviceId" placeholder="كود الجهاز (IMEI)" style="width: 100%; padding: 6px; margin-bottom: 6px; background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 4px; box-sizing: border-box;">
+  <input type="text" id="newPlate" placeholder="رقم اللوحة (مثال: أ ب ج 1234)" style="width: 100%; padding: 6px; margin-bottom: 6px; background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 4px; box-sizing: border-box;">
+  <button onclick="saveVehicleFromUI()" style="width: 100%; padding: 8px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">حفظ البيانات</button>
+</div>
+
+<script>
+function saveVehicleFromUI() {
+  const deviceId = document.getElementById('newDeviceId').value.trim();
+  const plate = document.getElementById('newPlate').value.trim();
+
+  if (!deviceId || !plate) {
+    alert('يرجى كتابة كود الجهاز ورقم اللوحة أولاً');
+    return;
+  }
+
+  if (typeof vehicles !== 'undefined') {
+    if (!vehicles[deviceId]) {
+      vehicles[deviceId] = { lat: 26.3800, lng: 50.1100, speed: 0, maxSpeed: 0, speedingCount: 0 };
+    }
+    vehicles[deviceId].plate = plate;
+    vehicles[deviceId].deviceId = deviceId;
+
+    if (typeof updateVehicle === 'function') {
+      updateVehicle({
+        deviceId: deviceId,
+        plate: plate,
+        lat: vehicles[deviceId].lat,
+        lng: vehicles[deviceId].lng,
+        speed: vehicles[deviceId].speed,
+        ignition: 1
+      });
+    }
+  }
+
+  document.getElementById('newDeviceId').value = '';
+  document.getElementById('newPlate').value = '';
+  alert('تم حفظ البيانات بنجاح!');
+}
+</script>
         <div id="reportPanel">
             <!-- نموذج إضافة وتعديل السيارات -->
 <div id="addVehiclePanel" style="background: #1e293b; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #334155;">
@@ -371,49 +412,7 @@ app.get('/', (req, res) => {
                 list.appendChild(card);
             });
         }
-    </script>
-</body>
-</html>
-    `);
-});
-
-const server = http.createServer(app);
-const wss = new WebSocket.Server({ server });
-
-function broadcastToClients(message) {
-    wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify(message));
-        }
-    });
-}
-
-wss.on('connection', (ws) => {
-    ws.send(JSON.stringify({ type: 'INIT_FLEET', data: Object.values(fleetState) }));
-});
-
-const HTTP_PORT = 3000;
-server.listen(HTTP_PORT, () => {
-   // إنشاء واجهة إضافة وتعديل السيارات تلقائياً عند فتح الصفحة
-if (typeof window !== 'undefined') {
-  window.addEventListener('DOMContentLoaded', () => {
-    const searchInput = document.getElementById('searchInput');
-    if (searchInput && !document.getElementById('addVehiclePanel')) {
-      const panel = document.createElement('div');
-      panel.id = 'addVehiclePanel';
-      panel.style.cssText = 'background: #1e293b; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #334155;';
-      panel.innerHTML = `
-        <h4 style="margin: 0 0 8px 0; color: #38bdf8; font-size: 14px;">➕ إضافة / تعديل سيارة</h4>
-        <input type="text" id="newDeviceId" placeholder="كود الجهاز (IMEI)" style="width: 100%; padding: 6px; margin-bottom: 6px; background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 4px; box-sizing: border-box;">
-        <input type="text" id="newPlate" placeholder="رقم اللوحة (مثال: أ ب ج 1234)" style="width: 100%; padding: 6px; margin-bottom: 6px; background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 4px; box-sizing: border-box;">
-        <button onclick="saveVehicleFromUI()" style="width: 100%; padding: 8px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">حفظ البيانات</button>
-      `;
-      searchInput.parentNode.insertBefore(panel, searchInput.nextSibling);
-    }
-  });
-}
-
-function saveVehicleFromUI() {
+        function saveVehicleFromUI() {
   const deviceId = document.getElementById('newDeviceId').value.trim();
   const plate = document.getElementById('newPlate').value.trim();
 
@@ -439,11 +438,27 @@ function saveVehicleFromUI() {
         ignition: 1
       });
     }
+document.getElementById('newDeviceId').value = '';
+    document.getElementById('newPlate').value = '';
+    alert('تم حفظ البيانات بنجاح!');
   }
+</script>
+</body>
+</html>
+</html>
+`);
+});
 
-  document.getElementById('newDeviceId').value = '';
-  document.getElementById('newPlate').value = '';
-  alert('تم حفظ البيانات بنجاح!');
-}
-    console.log(`🌐 السيرفر يعمل الآن! افتح المتصفح على: http://localhost:${HTTP_PORT}`);
+const server = http.createServer(app);
+
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', (ws) => {
+  ws.send(JSON.stringify({ type: 'INIT_FLEET', data: Object.values(fleetState) }));
+});
+
+const HTTP_PORT = 3000;
+server.listen(HTTP_PORT, () => {
+  console.log(`السيرفر يعمل الآن! افتح المتصفح على: http://localhost:${HTTP_PORT}`);
 });
