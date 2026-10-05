@@ -164,7 +164,7 @@ app.get('/', (req, res) => {
             <div class="stat-box">
                 <div id="totalCount" class="stat-num" style="color: #38bdf8;">0</div>
                 <div class="stat-label">إجمالي الأسطول</div>
-          <h3 style="margin-top: 5px; color: #f8fafc;">🏢 أسطول شركة الهوادج</h3>
+         
             <div class="stat-box">
                 <div id="speedingCount" class="stat-num" style="color: #ef4444;">0</div>
                 <div class="stat-label">تجاوز السرعة</div>
@@ -174,7 +174,13 @@ app.get('/', (req, res) => {
         <input type="text" id="searchInput" class="search-box" placeholder="🔍 ابحث برقم اللوحة أو الكود..." oninput="renderSidebar()">
         
         <div id="reportPanel">
-            
+            <!-- نموذج إضافة وتعديل السيارات -->
+<div id="addVehiclePanel" style="background: #1e293b; padding: 10px; border-radius: 8px; margin-top: 10px; border: 1px solid #334155;">
+  <h4 style="margin: 0 0 8px 0; color: #38bdf8; font-size: 14px;">➕ إضافة / تعديل سيارة</h4>
+  <input type="text" id="newDeviceId" placeholder="كود الجهاز (IMEI)" style="width: 100%; padding: 6px; margin-bottom: 6px; background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 4px; box-sizing: border-box;">
+  <input type="text" id="newPlate" placeholder="رقم اللوحة (مثال: أ ب ج 1234)" style="width: 100%; padding: 6px; margin-bottom: 6px; background: #0f172a; border: 1px solid #475569; color: #fff; border-radius: 4px; box-sizing: border-box;">
+  <button onclick="saveVehicleFromUI()" style="width: 100%; padding: 8px; background: #10b981; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">حفظ البيانات</button>
+</div>
                 <span id="reportTitle" style="font-weight: bold; color: #38bdf8;">تقرير الشاحنة</span>
                 <button onclick="closeReport()" style="background: none; border: none; color: #ef4444; cursor: pointer; font-weight: bold;">✕</button>
             </div>
@@ -390,3 +396,32 @@ const HTTP_PORT = 3000;
 server.listen(HTTP_PORT, () => {
     console.log(`🌐 السيرفر يعمل الآن! افتح المتصفح على: http://localhost:${HTTP_PORT}`);
 });
+// دالة حفظ وتحديث بيانات السيارة من الواجهة
+function saveVehicleFromUI() {
+  const deviceId = document.getElementById('newDeviceId').value.trim();
+  const plate = document.getElementById('newPlate').value.trim();
+
+  if (!deviceId || !plate) {
+    alert('يرجى كتابة كود الجهاز ورقم اللوحة أولاً');
+    return;
+  }
+
+  if (!vehicles[deviceId]) {
+    vehicles[deviceId] = { lat: 26.3800, lng: 50.1100, speed: 0, maxSpeed: 0, speedingCount: 0 };
+  }
+  vehicles[deviceId].plate = plate;
+  vehicles[deviceId].deviceId = deviceId;
+
+  updateVehicle({
+    deviceId: deviceId,
+    plate: plate,
+    lat: vehicles[deviceId].lat,
+    lng: vehicles[deviceId].lng,
+    speed: vehicles[deviceId].speed,
+    ignition: 1
+  });
+
+  document.getElementById('newDeviceId').value = '';
+  document.getElementById('newPlate').value = '';
+  alert('تم حفظ البيانات بنجاح!');
+}
