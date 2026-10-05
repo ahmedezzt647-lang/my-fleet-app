@@ -15,7 +15,6 @@ const gpsServer = net.createServer((socket) => {
   let deviceImei = null;
 
   socket.on('data', (data) => {
-    // 1. استقبال الـ IMEI من جهاز Teltonika عند أول اتصال
     if (data.length === 17 && data.readUInt16BE(0) === 15) {
       deviceImei = data.toString('ascii', 2, 17);
       console.log(`[Teltonika GPS] جهاز متصل جديد IMEI: ${deviceImei}`);
@@ -23,7 +22,6 @@ const gpsServer = net.createServer((socket) => {
       return;
     }
 
-    // 2. قراءة حزم البيانات التتبعية (Codec 8)
     if (data.length > 12) {
       const recordsCount = data.readUInt8(9);
       if (recordsCount > 0 && deviceImei) {
@@ -95,11 +93,12 @@ app.get('/', (req, res) => {
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <style>
     body { margin: 0; font-family: sans-serif; background: #0f172a; color: #fff; display: flex; height: 100vh; }
-    #sidebar { width: 320px; background: #1e293b; padding: 15px; box-sizing: border-box; overflow-y: auto; }
+    #sidebar { width: 340px; background: #1e293b; padding: 15px; box-sizing: border-box; overflow-y: auto; }
     #map { flex: 1; }
-    .input-group { margin-top: 15px; background: #0f172a; padding: 10px; border-radius: 8px; border: 1px solid #334155; }
+    .input-group { margin-top: 15px; background: #0f172a; padding: 12px; border-radius: 8px; border: 1px solid #334155; }
     input { width: 100%; padding: 8px; margin-bottom: 8px; background: #1e293b; border: 1px solid #475569; color: #fff; border-radius: 4px; box-sizing: border-box; }
     button { width: 100%; padding: 10px; background: #10b981; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+    .v-card { background: #0f172a; padding: 10px; border-radius: 8px; margin-top: 10px; border-right: 4px solid #10b981; }
   </style>
 </head>
 <body>
@@ -108,12 +107,12 @@ app.get('/', (req, res) => {
     
     <div class="input-group">
       <h3 style="margin-top:0; color:#38bdf8;">➕ ربط لوحة بجهاز Teltonika</h3>
-      <input type="text" id="newDeviceId" placeholder="كود IMEI الخاص بجهاز Teltonika">
-      <input type="text" id="newPlate" placeholder="رقم اللوحة (مثال: أ ب ج 1234)">
+      <input type="text" id="newDeviceId" placeholder="IMEI الجهاز (مثال: 864022086641775)">
+      <input type="text" id="newPlate" placeholder="رقم اللوحة (مثال: 4632 HHD)">
       <button onclick="saveVehicleFromUI()">حفظ وتأكيد</button>
     </div>
 
-    <div id="vehicleList" style="margin-top: 15px;"></div>
+    <div id="vehicleList"></div>
   </div>
   <div id="map"></div>
 
@@ -138,11 +137,23 @@ app.get('/', (req, res) => {
 
     function updateVehicleOnMap(v) {
       vehicles[v.deviceId] = v;
+      
+      // تحديث أو إنشاء العلامة على الخريطة
       if (!markers[v.deviceId]) {
         markers[v.deviceId] = L.marker([v.lat, v.lng]).addTo(map).bindPopup(v.plate);
       } else {
         markers[v.deviceId].setLatLng([v.lat, v.lng]);
       }
+
+      // تحديث القائمة الجانبية
+      let card = document.getElementById('v-' + v.deviceId);
+      if (!card) {
+        card = document.createElement('div');
+        card.id = 'v-' + v.deviceId;
+        card.className = 'v-card';
+        document.getElementById('vehicleList').appendChild(card);
+      }
+      card.innerHTML = '<strong>' + v.plate + '</strong><br><small>الكود: ' + v.deviceId + ' | السرعة: ' + v.speed + ' كم/س</small>';
     }
 
     function saveVehicleFromUI() {
@@ -155,7 +166,7 @@ app.get('/', (req, res) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deviceId, plate, lat: 26.3800, lng: 50.1100, speed: 0, ignition: 1 })
       }).then(() => {
-        alert('تم الحفظ بنجاح!');
+        alert('تم إضافة السيارة بنجاح!');
         document.getElementById('newDeviceId').value = '';
         document.getElementById('newPlate').value = '';
       });
