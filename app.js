@@ -174,7 +174,7 @@ app.get('/', (req, res) => {
         <input type="text" id="searchInput" class="search-box" placeholder="🔍 ابحث برقم اللوحة أو الكود..." oninput="renderSidebar()">
         
         <div id="reportPanel">
-            <div class="report-header">
+            
                 <span id="reportTitle" style="font-weight: bold; color: #38bdf8;">تقرير الشاحنة</span>
                 <button onclick="closeReport()" style="background: none; border: none; color: #ef4444; cursor: pointer; font-weight: bold;">✕</button>
             </div>
