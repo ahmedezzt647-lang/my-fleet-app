@@ -402,7 +402,7 @@ function saveVehicleFromUI() {
   const plate = document.getElementById('newPlate').value.trim();
 
   if (!deviceId || !plate) {
-    alert('يرجى كتابة كود الجهاز ورقم اللوحة أولاً');
+ alert('يرجى كتابة كود الجهاز ورقم اللوحة أولاً');
     return;
   }
 
