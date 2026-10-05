@@ -5,12 +5,6 @@ const sqlite3 = require('sqlite3').verbose();
 
 const app = express();
 app.use(express.json());
-app.use(express.static('public'));
-app.use(express.static(__dirname));
-
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/index.html');
-});
 
 // إنشاء وتجهيز قاعدة البيانات SQLite
 const db = new sqlite3.Database('./fleet_telemetry.db', (err) => {
@@ -170,7 +164,7 @@ app.get('/', (req, res) => {
             <div class="stat-box">
                 <div id="totalCount" class="stat-num" style="color: #38bdf8;">0</div>
                 <div class="stat-label">إجمالي الأسطول</div>
-            </div>
+          <h3 style="margin-top: 5px; color: #f8fafc;">🏢 أسطول شركة الهوادج</h3>
             <div class="stat-box">
                 <div id="speedingCount" class="stat-num" style="color: #ef4444;">0</div>
                 <div class="stat-label">تجاوز السرعة</div>
